@@ -2,25 +2,33 @@ package com.songoda.ultimatetimber.manager;
 
 import com.songoda.ultimatetimber.UltimateTimber;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class ChoppingManager extends Manager {
 
-    private final Set<UUID> enabledPlayers;
+    private Set<UUID> enabledPlayers;
     private final Map<UUID, Boolean> cooldownedPlayers;
     private boolean useCooldown;
     private int cooldownAmount;
+    private final File playersFile;
 
     public ChoppingManager(UltimateTimber ultimateTimber) {
         super(ultimateTimber);
         this.enabledPlayers = new HashSet<>();
         this.cooldownedPlayers = new HashMap<>();
+        playersFile = new File(plugin.getDataFolder(), "players.yml");
     }
 
     @Override
@@ -35,6 +43,24 @@ public class ChoppingManager extends Manager {
         this.cooldownedPlayers.clear();
     }
 
+    public void loadPlayers() {
+        if (playersFile.exists()) {
+            YamlConfiguration playerConfig = YamlConfiguration.loadConfiguration(playersFile);
+            enabledPlayers = playerConfig.getStringList("players").stream().map(UUID::fromString).collect(Collectors.toSet());
+        }
+    }
+
+    public void savePlayers() {
+        try {
+            playersFile.createNewFile();
+            YamlConfiguration playerConfig = YamlConfiguration.loadConfiguration(playersFile);
+            playerConfig.set("players", enabledPlayers.stream().map(UUID::toString).collect(Collectors.toList()));
+            playerConfig.save(playersFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Toggles a player's chopping status
      *
@@ -44,9 +70,11 @@ public class ChoppingManager extends Manager {
     public boolean togglePlayer(Player player) {
         if (this.enabledPlayers.contains(player.getUniqueId())) {
             this.enabledPlayers.remove(player.getUniqueId());
+            CompletableFuture.runAsync(this::savePlayers);
             return false;
         } else {
             this.enabledPlayers.add(player.getUniqueId());
+            CompletableFuture.runAsync(this::savePlayers);
             return true;
         }
     }
