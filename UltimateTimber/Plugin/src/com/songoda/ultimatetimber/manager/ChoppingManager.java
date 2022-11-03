@@ -2,17 +2,12 @@ package com.songoda.ultimatetimber.manager;
 
 import com.songoda.ultimatetimber.UltimateTimber;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -46,7 +41,7 @@ public class ChoppingManager extends Manager {
     public void loadPlayers() {
         if (playersFile.exists()) {
             YamlConfiguration playerConfig = YamlConfiguration.loadConfiguration(playersFile);
-            enabledPlayers = playerConfig.getStringList("players").stream().map(UUID::fromString).collect(Collectors.toSet());
+            enabledPlayers = playerConfig.getStringList("enabledPlayers").stream().map(UUID::fromString).collect(Collectors.toSet());
         }
     }
 
@@ -54,7 +49,7 @@ public class ChoppingManager extends Manager {
         try {
             playersFile.createNewFile();
             YamlConfiguration playerConfig = YamlConfiguration.loadConfiguration(playersFile);
-            playerConfig.set("players", enabledPlayers.stream().map(UUID::toString).collect(Collectors.toList()));
+            playerConfig.set("enabledPlayers", enabledPlayers.stream().map(UUID::toString).collect(Collectors.toList()));
             playerConfig.save(playersFile);
         } catch (IOException e) {
             e.printStackTrace();
