@@ -12,14 +12,14 @@ import java.util.UUID;
 
 public class ChoppingManager extends Manager {
 
-    private final Set<UUID> disabledPlayers;
+    private final Set<UUID> enabledPlayers;
     private final Map<UUID, Boolean> cooldownedPlayers;
     private boolean useCooldown;
     private int cooldownAmount;
 
     public ChoppingManager(UltimateTimber ultimateTimber) {
         super(ultimateTimber);
-        this.disabledPlayers = new HashSet<>();
+        this.enabledPlayers = new HashSet<>();
         this.cooldownedPlayers = new HashMap<>();
     }
 
@@ -31,7 +31,7 @@ public class ChoppingManager extends Manager {
 
     @Override
     public void disable() {
-        this.disabledPlayers.clear();
+        this.enabledPlayers.clear();
         this.cooldownedPlayers.clear();
     }
 
@@ -42,12 +42,12 @@ public class ChoppingManager extends Manager {
      * @return True if the player has chopping enabled, or false if they have it disabled
      */
     public boolean togglePlayer(Player player) {
-        if (this.disabledPlayers.contains(player.getUniqueId())) {
-            this.disabledPlayers.remove(player.getUniqueId());
-            return true;
-        } else {
-            this.disabledPlayers.add(player.getUniqueId());
+        if (this.enabledPlayers.contains(player.getUniqueId())) {
+            this.enabledPlayers.remove(player.getUniqueId());
             return false;
+        } else {
+            this.enabledPlayers.add(player.getUniqueId());
+            return true;
         }
     }
 
@@ -58,7 +58,7 @@ public class ChoppingManager extends Manager {
      * @return True if the player has chopping enabled, or false if they have it disabled
      */
     public boolean isChopping(Player player) {
-        return !this.disabledPlayers.contains(player.getUniqueId());
+        return this.enabledPlayers.contains(player.getUniqueId());
     }
 
     /**
