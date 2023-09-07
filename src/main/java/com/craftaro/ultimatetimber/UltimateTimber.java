@@ -76,6 +76,7 @@ public class UltimateTimber extends SongodaPlugin {
         this.treeFallManager = this.registerManager(TreeFallManager.class);
 
         this.reloadConfig();
+        this.choppingManager.loadPlayers();
     }
 
     @Override
